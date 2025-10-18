@@ -1,54 +1,38 @@
 #!/usr/bin/env python3
 import time
-import json
 import os
 from datetime import datetime
 
-from watchers import Watcher, DataStore
+from watchers import DataStore
 from watchers.mouse import MouseWatcher
 
 # === CONFIG ===
 INTERVAL = 5
 OUTPUT_DIR = "productivity_data"
+DB_PATH = os.path.join(OUTPUT_DIR, "productivity.db")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    
-# Global store
-store = DataStore()
+def run_core(watchers: list):
+    store = DataStore(DB_PATH, watchers)  # ← passes watchers to infer schema
 
-# === CORE ENGINE ===
-def run_core(watchers: list[Watcher]):
-    # Start all watchers
     for w in watchers:
         w.start(store)
 
-    print(f"▶️  Core running — saving every {INTERVAL}s to {OUTPUT_DIR}")
+    print(f"▶️  Core running — saving every {INTERVAL}s to {DB_PATH}")
     try:
         while True:
             time.sleep(INTERVAL)
-
-            # Save current state
-            data = {
-                "timestamp": datetime.utcnow().isoformat(),
-                "interval_seconds": INTERVAL,
-                **store.snapshot()
-            }
-            print(data)
-
-            filename = f"{OUTPUT_DIR}/log_{int(time.time())}.json"
-            with open(filename, 'w') as f:
-                json.dump(data, f, indent=2)
-            print(f"✅ Saved {filename}")
-
-            # Reset for next interval
+            timestamp = datetime.utcnow().isoformat()
+            store.save_to_db(timestamp, INTERVAL)
+            print(f"✅ Saved metrics to DB at {timestamp}")
             store.reset()
 
     except KeyboardInterrupt:
         print("\n🛑 Stopping...")
 
-# === RUN (for testing) ===
 if __name__ == "__main__":
-    run_core([
-        # DummyWatcher(),
+    watchers = [
         MouseWatcher(),
-    ])
+        # Add more watchers here later — no config changes needed!
+    ]
+    run_core(watchers)

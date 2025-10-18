@@ -7,6 +7,19 @@ from Xlib.protocol import rq
 from . import Watcher
 
 class MouseWatcher(Watcher):
+    METRIC_KEYS = {
+        'mouse.clicks.total',
+        'mouse.clicks.primary',
+        'mouse.clicks.secondary',
+        'mouse.clicks.middle',
+        'mouse.scroll.up',
+        'mouse.scroll.down',
+        'mouse.scroll.left',
+        'mouse.scroll.right',
+        'mouse.movement.x',
+        'mouse.movement.y',
+    }
+
     def __init__(self):
         self._lock = threading.Lock()
         self._total_dx = 0
