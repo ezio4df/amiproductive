@@ -58,8 +58,10 @@ KEYCODE_TO_NAME = {
 }
 
 # Build metric keys
-_ISO_105_NAMES = set(KEYCODE_TO_NAME.values())
-METRIC_KEYS = {f'keyboard.key.{name}' for name in _ISO_105_NAMES} | {'keyboard.other'}
+METRIC_KEYS = {
+    **{f'keyboard.key.{key}': 0 for key in set(KEYCODE_TO_NAME.values())},
+    'keyboard.other': 0
+}
 
 class KeyboardWatcher(Watcher):
     METRIC_KEYS = METRIC_KEYS

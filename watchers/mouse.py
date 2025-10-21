@@ -6,16 +6,16 @@ from . import Watcher
 
 class MouseWatcher(Watcher):
     METRIC_KEYS = {
-        'mouse.clicks.total',
-        'mouse.clicks.primary',
-        'mouse.clicks.secondary',
-        'mouse.clicks.middle',
-        'mouse.scroll.up',
-        'mouse.scroll.down',
-        'mouse.scroll.left',
-        'mouse.scroll.right',
-        'mouse.movement.x',
-        'mouse.movement.y',
+        'mouse.clicks.total': 0,
+        'mouse.clicks.primary': 0,
+        'mouse.clicks.secondary': 0,
+        'mouse.clicks.middle': 0,
+        'mouse.scroll.up': 0,
+        'mouse.scroll.down': 0,
+        'mouse.scroll.left': 0,
+        'mouse.scroll.right': 0,
+        'mouse.movement.x': 0,
+        'mouse.movement.y': 0,
     }
 
     def __init__(self):
