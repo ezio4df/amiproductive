@@ -1,4 +1,5 @@
 import sys
+import os
 import shutil
 from datetime import datetime
 import threading
@@ -39,21 +40,37 @@ class DataStore:
         actual_cols = self._get_table_columns()
 
         if actual_cols == expected_cols:
-            return  # schema matches
+            return  # Schema matches
 
-        # Schema mismatch or missing table
-        print("⚠️  Database schema mismatch or missing.")
-        print(f"Expected columns: {sorted(expected_cols)}")
-        print(f"Found columns:    {sorted(actual_cols) if actual_cols else '(none)'}")
-        resp = input("Proceed? This will BACK UP the current DB and create a new one. (y/N): ").strip().lower()
-        if resp != 'y':
-            print("🛑 Aborted by user.")
-            sys.exit(1)
+        # Check if DB file exists at all
+        db_exists = os.path.isfile(self.db_path)
 
-        # Backup
-        backup_name = self.db_path + ".bak." + datetime.now().strftime("%Y%m%d_%H%M%S")
-        shutil.copy2(self.db_path, backup_name)
-        print(f"✅ Backed up to: {backup_name}")
+        if actual_cols:
+            # Table exists but schema mismatch → require backup
+            print("⚠️  Database schema mismatch.")
+            print(f"Expected columns: {sorted(expected_cols)}")
+            print(f"Found columns:    {sorted(actual_cols)}")
+            resp = input("Proceed? This will BACK UP the current DB and create a new one. (y/N): ").strip().lower()
+            if resp != 'y':
+                print("🛑 Aborted by user.")
+                sys.exit(1)
+
+            # Backup only if file exists
+            if db_exists:
+                backup_name = self.db_path + ".bak." + datetime.now().strftime("%Y%m%d_%H%M%S")
+                shutil.copy2(self.db_path, backup_name)
+                print(f"✅ Backed up to: {backup_name}")
+            else:
+                print("⚠️  DB file missing — proceeding without backup.")
+        else:
+            # No table or no DB → safe to create fresh
+            print("ℹ️  No existing metrics table — creating fresh database.")
+            if db_exists:
+                print("⚠️  Existing DB has no metrics table — overwriting schema.")
+
+        # Remove old DB file if it exists (to start clean)
+        if db_exists:
+            os.remove(self.db_path)
 
         # Create new DB with correct schema
         with sqlite3.connect(self.db_path) as conn:
@@ -66,6 +83,7 @@ class DataStore:
                 )
             ''')
             conn.commit()
+        print("✅ Created new database with correct schema.")
 
     def reset(self):
         with self.lock:
