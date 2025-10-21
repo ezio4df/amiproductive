@@ -1,9 +1,7 @@
-# watchers/mouse_watcher.py
 import threading
 from Xlib import X, display
 from Xlib.ext import record
 from Xlib.protocol import rq
-
 from . import Watcher
 
 class MouseWatcher(Watcher):
@@ -45,16 +43,7 @@ class MouseWatcher(Watcher):
 
                 # Write to shared store (under store's lock!)
                 with store.lock:
-                    store.metrics['mouse.clicks.total'] += 1
-                    if button == 1:
-                        store.metrics['mouse.clicks.primary'] += 1
-                    elif button == 3:
-                        store.metrics['mouse.clicks.secondary'] += 1
-                    elif button == 2:
-                        store.metrics['mouse.clicks.middle'] += 1
-
                     # Scroll: 4/5 = vertical, 6/7 = horizontal
-                    # Replace the old scroll block with this:
                     if button == 4:
                         store.metrics['mouse.scroll.up'] += 1
                     elif button == 5:
@@ -63,6 +52,17 @@ class MouseWatcher(Watcher):
                         store.metrics['mouse.scroll.left'] += 1
                     elif button == 7:
                         store.metrics['mouse.scroll.right'] += 1
+
+                    # button clicks
+                    else:
+                        store.metrics['mouse.clicks.total'] += 1
+                    if button == 1:
+                        store.metrics['mouse.clicks.primary'] += 1
+                    elif button == 3:
+                        store.metrics['mouse.clicks.secondary'] += 1
+                    elif button == 2:
+                        store.metrics['mouse.clicks.middle'] += 1
+
 
     def _flush_movement(self, store):
         """Periodically flush accumulated movement to shared store"""
