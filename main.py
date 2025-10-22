@@ -6,6 +6,7 @@ from datetime import datetime, UTC
 from watchers import DataStore
 from watchers.keyboard import KeyboardWatcher
 from watchers.mouse import MouseWatcher
+from watchers.window import WindowWatcher
 
 INTERVAL = 5
 OUTPUT_DIR = "productivity_data"
@@ -36,4 +37,5 @@ if __name__ == "__main__":
         # DummyWatcher(),
         MouseWatcher(),
         KeyboardWatcher(),
+        WindowWatcher(),
     ])
